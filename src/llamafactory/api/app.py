@@ -71,7 +71,7 @@ def create_app(chat_model: "ChatModel") -> "FastAPI":
     async def verify_api_key(auth: Annotated[Optional[HTTPAuthorizationCredentials], Depends(security)]):
         if api_key and (auth is None or auth.credentials != api_key):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API key.")
-
+    # 사용 가능한 모델 목록 사용자로부터 요청, 데이터 조회(read)
     @app.get(
         "/v1/models",
         response_model=ModelList,
@@ -81,7 +81,7 @@ def create_app(chat_model: "ChatModel") -> "FastAPI":
     async def list_models():
         model_card = ModelCard(id="gpt-3.5-turbo")
         return ModelList(data=[model_card])
-
+    # 모델로부터 채팅 응답 생성
     @app.post(
         "/v1/chat/completions",
         response_model=ChatCompletionResponse,
