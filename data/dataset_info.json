@@ -1,4 +1,7 @@
 {
+  "ko_make_dataset" :{
+    "file_name" : "ko_make_dataset.json"
+  },
   "identity": {
     "file_name": "identity.json"
   },

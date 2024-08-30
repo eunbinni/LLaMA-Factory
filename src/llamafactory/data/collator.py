@@ -21,7 +21,7 @@ from typing import Any, Dict, Literal, Sequence
 import torch
 from transformers import DataCollatorForSeq2Seq
 
-
+# 2d -> 4d 변환 함수
 def prepare_4d_attention_mask(attention_mask_with_indices: "torch.Tensor", dtype: "torch.dtype") -> "torch.Tensor":
     r"""
     Expands the attention mask with indices from (batch_size, seq_len) to (batch_size, 1, seq_len, seq_len),
@@ -60,7 +60,7 @@ def prepare_4d_attention_mask(attention_mask_with_indices: "torch.Tensor", dtype
     attention_mask_4d = torch.where(attention_mask_4d != 0, torch.tensor(0, dtype=dtype), min_dtype)
     return attention_mask_4d
 
-
+# 4d attention mask 사용
 @dataclass
 class SFTDataCollatorWith4DAttentionMask(DataCollatorForSeq2Seq):
     r"""

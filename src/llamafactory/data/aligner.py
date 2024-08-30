@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 
 logger = get_logger(__name__)
 
-
+# 이미지 파일이 데이터셋의 일부로 로컬에 저장되어 있는 경우, 이미지 파일의 경로를 변환하여 데이터셋 구조에 맞도록 변환하는 함수
 def _convert_images(images: List[Any], dataset_attr: "DatasetAttr", data_args: "DataArguments") -> List[Any]:
     r"""
     Optionally concatenates image path to dataset dir when loading from local disk.
@@ -47,14 +47,14 @@ def _convert_images(images: List[Any], dataset_attr: "DatasetAttr", data_args: "
 
     return outputs
 
-
+# Alpaca 형식의 데이터로 변경
 def convert_alpaca(
     examples: Dict[str, List[Any]], dataset_attr: "DatasetAttr", data_args: "DataArguments"
 ) -> Dict[str, List[Any]]:
     r"""
     Converts alpaca format dataset to the standard format.
     """
-    outputs = {"prompt": [], "response": [], "system": [], "tools": [], "images": []}
+    outputs = {"prompt": [], "response": [], "system": [], "tools": [], "images": []} # 알파카 형식
     convert_images = partial(_convert_images, dataset_attr=dataset_attr, data_args=data_args)
     for i in range(len(examples[dataset_attr.prompt])):
         prompt = []
@@ -98,9 +98,9 @@ def convert_alpaca(
         outputs["tools"].append(examples[dataset_attr.tools][i] if dataset_attr.tools else "")
         outputs["images"].append(convert_images(examples[dataset_attr.images][i]) if dataset_attr.images else [])
 
-    return outputs
+    return outputs # 바꾼 결과 반환
 
-
+# gpt 형식 데이터 변경
 def convert_sharegpt(
     examples: Dict[str, List[Any]], dataset_attr: "DatasetAttr", data_args: "DataArguments"
 ) -> Dict[str, List[Any]]:
@@ -188,7 +188,7 @@ def convert_sharegpt(
 
     return outputs
 
-
+# 데이터 변환, 정렬하는 함수, 최종적으로 표준 형식의 데이터 생성
 def align_dataset(
     dataset: Union["Dataset", "IterableDataset"],
     dataset_attr: "DatasetAttr",

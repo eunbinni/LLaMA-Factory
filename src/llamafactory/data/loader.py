@@ -45,23 +45,23 @@ logger = get_logger(__name__)
 
 def _load_single_dataset(
     dataset_attr: "DatasetAttr",
-    model_args: "ModelArguments",
+    model_args: "ModelArguments", # model arguments 전달(model load는 안함)
     data_args: "DataArguments",
     training_args: "Seq2SeqTrainingArguments",
 ) -> Union["Dataset", "IterableDataset"]:
     logger.info("Loading dataset {}...".format(dataset_attr))
     data_path, data_name, data_dir, data_files = None, None, None, None
-    if dataset_attr.load_from in ["hf_hub", "ms_hub"]:
+    if dataset_attr.load_from in ["hf_hub", "ms_hub"]: # hugging face hub에서 불러오기
         data_path = dataset_attr.dataset_name
         data_name = dataset_attr.subset
         data_dir = dataset_attr.folder
 
-    elif dataset_attr.load_from == "script":
-        data_path = os.path.join(data_args.dataset_dir, dataset_attr.dataset_name)
+    elif dataset_attr.load_from == "script": # 데이터를 로드하기 위한 사용자 코드 스크립트 파일
+        data_path = os.path.join(data_args.dataset_dir, dataset_attr.dataset_name) 
         data_name = dataset_attr.subset
         data_dir = dataset_attr.folder
 
-    elif dataset_attr.load_from == "file":
+    elif dataset_attr.load_from == "file": # 직접 json 파일 업로드하는 경우
         data_files = []
         local_path = os.path.join(data_args.dataset_dir, dataset_attr.dataset_name)
         if os.path.isdir(local_path):  # is directory
@@ -79,10 +79,10 @@ def _load_single_dataset(
 
         if data_path is None:
             raise ValueError("Allowed file types: {}.".format(",".join(FILEEXT2TYPE.keys())))
-    else:
+    else: # 모두가 아닌 경우 type error 발생
         raise NotImplementedError("Unknown load type: {}.".format(dataset_attr.load_from))
 
-    if dataset_attr.load_from == "ms_hub":
+    if dataset_attr.load_from == "ms_hub": # microsoft hub에서 데이터 불러오는 경우, 라이브러리 import
         require_version("modelscope>=1.11.0", "To fix: pip install modelscope>=1.11.0")
         from modelscope import MsDataset
         from modelscope.utils.config_ds import MS_DATASETS_CACHE
@@ -100,7 +100,7 @@ def _load_single_dataset(
         )
         if isinstance(dataset, MsDataset):
             dataset = dataset.to_hf_dataset()
-    else:
+    else: # 아닌 경우 load dataset
         dataset = load_dataset(
             path=data_path,
             name=data_name,
@@ -132,9 +132,9 @@ def _load_single_dataset(
         max_samples = min(data_args.max_samples, len(dataset))
         dataset = dataset.select(range(max_samples))
 
-    return align_dataset(dataset, dataset_attr, data_args, training_args)
+    return align_dataset(dataset, dataset_attr, data_args, training_args) # load 하고 데이터 align 진행
 
-
+# 병합할 데이터 로드
 def _get_merged_dataset(
     dataset_names: Optional[Sequence[str]],
     model_args: "ModelArguments",
@@ -152,9 +152,9 @@ def _get_merged_dataset(
 
         datasets.append(_load_single_dataset(dataset_attr, model_args, data_args, training_args))
 
-    return merge_dataset(datasets, data_args, seed=training_args.seed)
+    return merge_dataset(datasets, data_args, seed=training_args.seed) # 실제 병합은 여기서
 
-
+# 전처리 진행 함수
 def _get_preprocessed_dataset(
     dataset: Optional[Union["Dataset", "IterableDataset"]],
     data_args: "DataArguments",
@@ -194,7 +194,7 @@ def _get_preprocessed_dataset(
 
     return dataset
 
-
+# 데이터 로드, 병합, 전처리해서 데이터 최종 반환하는 함수
 def get_dataset(
     model_args: "ModelArguments",
     data_args: "DataArguments",

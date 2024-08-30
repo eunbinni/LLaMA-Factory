@@ -45,7 +45,7 @@ class DatasetModule(TypedDict):
     train_dataset: Optional[Union["Dataset", "IterableDataset"]]
     eval_dataset: Optional[Union["Dataset", "IterableDataset"]]
 
-
+# mix strategy 3가지에 따른 데이터 병합 
 def merge_dataset(
     all_datasets: List[Union["Dataset", "IterableDataset"]], data_args: "DataArguments", seed: int
 ) -> Union["Dataset", "IterableDataset"]:
@@ -55,12 +55,12 @@ def merge_dataset(
         if data_args.streaming:
             logger.warning("The samples between different datasets will not be mixed in streaming mode.")
 
-        return concatenate_datasets(all_datasets)
+        return concatenate_datasets(all_datasets) # huggingface concat하는 함수
     elif data_args.mix_strategy.startswith("interleave"):
         if not data_args.streaming:
             logger.warning("We recommend using `mix_strategy=concat` in non-streaming mode.")
 
-        return interleave_datasets(
+        return interleave_datasets( # huggingface 교차해서 섞는 함수
             datasets=all_datasets,
             probabilities=data_args.interleave_probs,
             seed=seed,
@@ -69,7 +69,7 @@ def merge_dataset(
     else:
         raise ValueError("Unknown mixing strategy.")
 
-
+# train, val split
 def split_dataset(
     dataset: Union["Dataset", "IterableDataset"], data_args: "DataArguments", seed: int
 ) -> "DatasetDict":
